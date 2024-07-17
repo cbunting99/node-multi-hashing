@@ -354,7 +354,8 @@ DECLARE_FUNC(cryptonightfast) {
     SET_BUFFER_RETURN(output, 32);
 }
 DECLARE_FUNC(chukwa) {
-    DECLARE_SCOPE;
+    if (info.Length() < 4)
+        RETURN_EXCEPT("You must provide buffer to hash, T value, M value, and P value");
 
     // Chukwa Definitions
     const uint32_t hashlen = 32; // The length of the resulting hash in bytes
@@ -363,8 +364,8 @@ DECLARE_FUNC(chukwa) {
     const uint32_t iters = 3; // How many iterations we perform as part of our slow-hash
     const uint32_t memory = 512; // This value is in KiB (0.5MB)
 
-    if (args.Length() < 1)
-        RETURN_EXCEPT("You must provide one argument.");
+ //   if (args.Length() < 1)
+ //       RETURN_EXCEPT("You must provide one argument.");
 
     Local<Object> target = args[0]->ToObject();
 
