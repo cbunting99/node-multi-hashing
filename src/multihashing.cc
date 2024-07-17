@@ -353,6 +353,36 @@ DECLARE_FUNC(cryptonightfast) {
     }
     SET_BUFFER_RETURN(output, 32);
 }
+DECLARE_FUNC(chukwa) {
+    DECLARE_SCOPE;
+
+    // Chukwa Definitions
+    const uint32_t hashlen = 32; // The length of the resulting hash in bytes
+    const uint32_t saltlen = 16; // The length of our salt in bytes
+    const uint32_t threads = 1; // How many threads to use at once
+    const uint32_t iters = 3; // How many iterations we perform as part of our slow-hash
+    const uint32_t memory = 512; // This value is in KiB (0.5MB)
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    uint8_t salt[saltlen];
+    std::memcpy(salt, input, sizeof(salt));
+
+    argon2id_hash_raw(iters, memory, threads, input, input_len, salt, saltlen, output, hashlen);
+
+    SET_BUFFER_RETURN(output, 32);
+}
 DECLARE_FUNC(boolberry) {
     if (info.Length() < 2)
         RETURN_EXCEPT("You must provide two arguments.");
@@ -394,6 +424,7 @@ NAN_MODULE_INIT(init) {
     NAN_EXPORT(target, blake);
     NAN_EXPORT(target, boolberry);
     NAN_EXPORT(target, c11);
+	NAN_EXPORT(target, chukwa);
     NAN_EXPORT(target, cryptonight);
     NAN_EXPORT(target, cryptonightfast);
     NAN_EXPORT(target, fresh);
